@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/nesquena/rabl"
   s.summary     = %q{General ruby templating with json, bson, xml and msgpack support}
   s.description = %q{General ruby templating with json, bson, xml and msgpack support}
+  s.license     = 'MIT'
 
   s.rubyforge_project = "rabl"
 
@@ -19,15 +20,19 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'multi_json',           '~> 1.0'
-  s.add_dependency 'activesupport',        '>= 2.3.14'
+  
+  if RUBY_VERSION < "1.9"
+    s.add_dependency 'activesupport', '>= 2.3.14', '<= 4'
+  else
+    s.add_dependency "activesupport", '>= 2.3.14'
+  end
 
   s.add_development_dependency 'riot',     '~> 0.12.3'
   s.add_development_dependency 'rr',       '~> 1.0.2'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'tilt'
-  s.add_development_dependency 'yajl-ruby'
-  s.add_development_dependency 'msgpack', '~> 0.4.5'
-  s.add_development_dependency 'bson', '~> 1.5.2'
+  s.add_development_dependency 'oj'
+  s.add_development_dependency 'msgpack',  '~> 0.4.5'
+  s.add_development_dependency 'bson',     '~> 1.7.0'
   s.add_development_dependency 'plist'
 end

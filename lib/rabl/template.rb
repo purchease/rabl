@@ -20,7 +20,7 @@ if defined?(Tilt)
 end
 
 # Rails 2.X Template
-if defined?(ActionView) && defined?(Rails) && Rails.version =~ /^2/
+if defined?(ActionView) && defined?(Rails) && Rails.version.to_s =~ /^2/
   require 'action_view/base'
   require 'action_view/template'
 
@@ -40,21 +40,16 @@ if defined?(ActionView) && defined?(Rails) && Rails.version =~ /^2/
   ActionView::Template.register_template_handler :rabl, ActionView::TemplateHandlers::RablHandler
 end
 
-# Rails 3.X Template
-if defined?(ActionView) && defined?(Rails) && Rails.version =~ /^3/
+# Rails 3.X / 4.X Template
+if defined?(ActionView) && defined?(Rails) && Rails.version.to_s =~ /^[34]/
   module ActionView
     module Template::Handlers
       class Rabl
-
         class_attribute :default_format
         self.default_format = Mime::JSON
 
         def self.call(template)
-          source = if template.source.empty?
-            File.read(template.identifier)
-          else # use source
-            template.source
-          end
+          source = template.source
 
           %{ ::Rabl::Engine.new(#{source.inspect}).
               render(self, assigns.merge(local_assigns)) }

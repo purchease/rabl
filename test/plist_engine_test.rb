@@ -1,10 +1,7 @@
 require File.expand_path('../teststrap', __FILE__)
-require File.expand_path('../../lib/rabl', __FILE__)
-require File.expand_path('../../lib/rabl/template', __FILE__)
-require File.expand_path('../models/user', __FILE__)
+require 'rabl/template'
 
 context "Rabl::Engine" do
-
   helper(:rabl) { |t| RablTemplate.new("code", :format => 'plist') { t } }
 
   context "with plist defaults" do
@@ -16,7 +13,6 @@ context "Rabl::Engine" do
     end
 
     context "#object" do
-
       asserts "that it sets data source" do
         template = rabl %q{
           object @user
@@ -32,20 +28,19 @@ context "Rabl::Engine" do
         }
         scope = Object.new
         scope.instance_variable_set :@user, User.new
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>person</key>\n\t<dict/>\n</dict>\n</plist>\n"
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>person</key>\n\t<dict/>\n</dict>\n</plist>\n".split("").sort
     end
 
     context "#collection" do
-
       asserts "that it sets object to be casted as a simple array" do
         template = rabl %{
           collection @users
         }
         scope = Object.new
         scope.instance_variable_set :@users, [User.new, User.new]
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<array>\n\t<dict>\n\t\t<key>user</key>\n\t\t<dict/>\n\t</dict>\n\t<dict>\n\t\t<key>user</key>\n\t\t<dict/>\n\t</dict>\n</array>\n</plist>\n"
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<array>\n\t<dict>\n\t\t<key>user</key>\n\t\t<dict/>\n\t</dict>\n\t<dict>\n\t\t<key>user</key>\n\t\t<dict/>\n\t</dict>\n</array>\n</plist>\n".split("").sort
 
       asserts "that it sets root node for objects" do
         template = rabl %{
@@ -53,13 +48,11 @@ context "Rabl::Engine" do
         }
         scope = Object.new
         scope.instance_variable_set :@users, [User.new, User.new]
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>person</key>\n\t<array>\n\t\t<dict>\n\t\t\t<key>person</key>\n\t\t\t<dict/>\n\t\t</dict>\n\t\t<dict>\n\t\t\t<key>person</key>\n\t\t\t<dict/>\n\t\t</dict>\n\t</array>\n</dict>\n</plist>\n"
-
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>person</key>\n\t<array>\n\t\t<dict>\n\t\t\t<key>person</key>\n\t\t\t<dict/>\n\t\t</dict>\n\t\t<dict>\n\t\t\t<key>person</key>\n\t\t\t<dict/>\n\t\t</dict>\n\t</array>\n</dict>\n</plist>\n".split("").sort
     end
 
     context "#attribute" do
-
       asserts "that it adds an attribute or method to be included in output" do
         template = rabl %{
           object @user
@@ -67,8 +60,8 @@ context "Rabl::Engine" do
         }
         scope = Object.new
         scope.instance_variable_set :@user, User.new(:name => 'irvine')
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>name</key>\n\t\t<string>irvine</string>\n\t</dict>\n</dict>\n</plist>\n"
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>name</key>\n\t\t<string>irvine</string>\n\t</dict>\n</dict>\n</plist>\n".split("").sort
 
       asserts "that it can add attribute under a different key name through :as" do
         template = rabl %{
@@ -77,8 +70,8 @@ context "Rabl::Engine" do
         }
         scope = Object.new
         scope.instance_variable_set :@user, User.new(:name => 'irvine')
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>city</key>\n\t\t<string>irvine</string>\n\t</dict>\n</dict>\n</plist>\n"
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>city</key>\n\t\t<string>irvine</string>\n\t</dict>\n</dict>\n</plist>\n".split("").sort
 
       asserts "that it can add attribute under a different key name through hash" do
         template = rabl %{
@@ -87,41 +80,36 @@ context "Rabl::Engine" do
         }
         scope = Object.new
         scope.instance_variable_set :@user, User.new(:name => 'irvine')
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>city</key>\n\t\t<string>irvine</string>\n\t</dict>\n</dict>\n</plist>\n"
-
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>city</key>\n\t\t<string>irvine</string>\n\t</dict>\n</dict>\n</plist>\n".split("").sort
     end
 
     context "#code" do
-
       asserts "that it can create an arbitraty code node" do
         template = rabl %{
           code(:foo) { 'bar' }
         }
-        template.render(Object.new)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>foo</key>\n\t<string>bar</string>\n</dict>\n</plist>\n"
+        template.render(Object.new).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>foo</key>\n\t<string>bar</string>\n</dict>\n</plist>\n".split("").sort
 
       asserts "that it can be passed conditionals" do
         template = rabl %{
           code(:foo, :if => lambda { |i| false }) { 'bar' }
         }
-        template.render(Object.new)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict/>\n</plist>\n"
-
+        template.render(Object.new).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict/>\n</plist>\n".split("").sort
     end
 
     context "#child" do
-
       asserts "that it can create a child node" do
         template = rabl %{
           object @user
-          attribute :name
           child(@user) { attribute :city }
         }
         scope = Object.new
         scope.instance_variable_set :@user, User.new(:name => 'leo', :city => 'LA')
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>name</key>\n\t\t<string>leo</string>\n\t\t<key>user</key>\n\t\t<dict>\n\t\t\t<key>city</key>\n\t\t\t<string>LA</string>\n\t\t</dict>\n\t</dict>\n</dict>\n</plist>\n"
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>user</key>\n\t\t<dict>\n\t\t\t<key>city</key>\n\t\t\t<string>LA</string>\n\t\t</dict>\n\t</dict>\n</dict>\n</plist>\n".split("").sort
 
       asserts "that it can create a child node with different key" do
         template = rabl %{
@@ -132,12 +120,10 @@ context "Rabl::Engine" do
         scope = Object.new
         scope.instance_variable_set :@user, User.new(:name => 'leo', :city => 'LA')
         template.render(scope)
-
       end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>name</key>\n\t\t<string>leo</string>\n\t\t<key>person</key>\n\t\t<dict>\n\t\t\t<key>city</key>\n\t\t\t<string>LA</string>\n\t\t</dict>\n\t</dict>\n</dict>\n</plist>\n"
     end
 
     context "#glue" do
-
       asserts "that it glues data from a child node" do
         template = rabl %{
           object @user
@@ -191,7 +177,6 @@ context "Rabl::Engine" do
     end
 
     context "#object" do
-
       asserts "that it sets data source" do
         template = rabl %q{
           object @user
@@ -212,7 +197,6 @@ context "Rabl::Engine" do
     end
 
     context "#collection" do
-
       asserts "that it sets object to be casted as a simple array" do
         template = rabl %{
           collection @users
@@ -230,11 +214,9 @@ context "Rabl::Engine" do
         scope.instance_variable_set :@users, [User.new, User.new]
         template.render(scope)
       end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>person</key>\n\t<array>\n\t\t<dict/>\n\t\t<dict/>\n\t</array>\n</dict>\n</plist>\n"
-
     end
 
     context "#attribute" do
-
       asserts "that it adds an attribute or method to be included in output" do
         template = rabl %{
           object @user
@@ -264,12 +246,10 @@ context "Rabl::Engine" do
         scope.instance_variable_set :@user, User.new(:name => 'irvine')
         template.render(scope)
       end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>city</key>\n\t<string>irvine</string>\n</dict>\n</plist>\n"
-
     end
 
     context "#code" do
-
-      asserts "that it can create an arbitraty code node" do
+      asserts "that it can create an arbitrary code node" do
         template = rabl %{
           code(:foo) { 'bar' }
         }
@@ -282,21 +262,18 @@ context "Rabl::Engine" do
         }
         template.render(Object.new)
       end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict/>\n</plist>\n"
-
     end
 
     context "#child" do
-
       asserts "that it can create a child node" do
         template = rabl %{
           object @user
-          attribute :name
           child(@user) { attribute :city }
         }
         scope = Object.new
         scope.instance_variable_set :@user, User.new(:name => 'leo', :city => 'LA')
-        template.render(scope)
-      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>name</key>\n\t<string>leo</string>\n\t<key>user</key>\n\t<dict>\n\t\t<key>city</key>\n\t\t<string>LA</string>\n\t</dict>\n</dict>\n</plist>\n"
+        template.render(scope).split("").sort
+      end.equals "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>user</key>\n\t<dict>\n\t\t<key>city</key>\n\t\t<string>LA</string>\n\t</dict>\n</dict>\n</plist>\n".split("").sort
 
       asserts "that it can create a child node with different key" do
         template = rabl %{
@@ -311,7 +288,6 @@ context "Rabl::Engine" do
     end
 
     context "#glue" do
-
       asserts "that it glues data from a child node" do
         template = rabl %{
           object @user

@@ -2,6 +2,7 @@ require 'active_support'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/hash/reverse_merge'
+require 'active_support/core_ext/hash/except'
 require 'active_support/core_ext/hash/slice'
 
 require 'rabl/version'
@@ -10,12 +11,21 @@ require 'rabl/partials'
 require 'rabl/engine'
 require 'rabl/builder'
 require 'rabl/configuration'
-require 'rabl/railtie' if defined?(Rails) && Rails.version =~ /^3/
+require 'rabl/renderer'
+require 'rabl/cache_engine'
+
+if defined?(Rails)
+  require 'rabl/tracker'  if Rails.version =~ /^[4]/
+  require 'rabl/digestor' if Rails.version =~ /^[4]/
+  require 'rabl/railtie'  if Rails.version =~ /^[34]/
+end
 
 # Rabl.register!
 module Rabl
   class << self
 
+    # Initialize RABL within an application
+    # Rabl.register!
     def register!
       require 'rabl/template'
     end
@@ -59,6 +69,12 @@ module Rabl
     # Resets the RABL source cache
     def reset_source_cache!
       @_source_cache = {}
+    end
+
+    # Renders an object using a specified template within an application.
+    # render(@post, 'posts/show', :view_path => "/path/to/app/views")
+    def render(object, source, options = {})
+      Rabl::Renderer.new(source, object, options).render
     end
 
   end

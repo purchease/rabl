@@ -16,13 +16,18 @@ begin
 rescue LoadError
 end
 
-# Load MultiJSON
-require 'multi_json'
+# Set default options for Oj json parser (if exists)
+begin
+  require 'oj'
+  Oj.default_options =  { :mode => :compat, :time_format => :ruby }
+rescue LoadError
+end
 
 module Rabl
   # Rabl.host
   class Configuration
     attr_accessor :include_json_root
+    attr_accessor :include_child_root
     attr_accessor :include_msgpack_root
     attr_accessor :include_plist_root
     attr_accessor :include_xml_root
@@ -30,41 +35,55 @@ module Rabl
     attr_accessor :enable_json_callbacks
     attr_accessor :bson_check_keys
     attr_accessor :bson_move_id
+    attr_writer   :json_engine
     attr_writer   :msgpack_engine
     attr_writer   :bson_engine
     attr_writer   :plist_engine
     attr_writer   :xml_options
     attr_accessor :cache_sources
+    attr_accessor :cache_all_output
+    attr_accessor :escape_all_output
+    attr_accessor :view_paths
+    attr_accessor :cache_engine
+    attr_accessor :raise_on_missing_attribute
+    attr_accessor :perform_caching
+    attr_accessor :replace_nil_values_with_empty_strings
+    attr_accessor :replace_empty_string_values_with_nil_values
+    attr_accessor :exclude_nil_values
+    attr_accessor :exclude_empty_values_in_collections
 
     DEFAULT_XML_OPTIONS = { :dasherize  => true, :skip_types => false }
 
     def initialize
-      @include_json_root     = true
-      @include_msgpack_root  = true
-      @include_plist_root    = true
-      @include_xml_root      = false
-      @include_bson_root     = true
-      @enable_json_callbacks = false
-      @bson_check_keys       = false
-      @bson_move_id          = false
-      @json_engine           = nil
-      @msgpack_engine        = nil
-      @bson_engine           = nil
-      @plist_engine          = nil
-      @xml_options           = {}
-      @cache_sources         = false
-    end
-
-    # @param [Symbol, String, #encode] engine_name The name of a JSON engine,
-    #   or class that responds to `encode`, to use to encode Rabl templates
-    #   into JSON. For more details, see the MultiJson gem.
-    def json_engine=(engine_name_or_class)
-      MultiJson.engine = @engine_name = engine_name_or_class
+      @include_json_root                            = true
+      @include_child_root                           = true
+      @include_msgpack_root                         = true
+      @include_plist_root                           = true
+      @include_xml_root                             = false
+      @include_bson_root                            = true
+      @enable_json_callbacks                        = false
+      @bson_check_keys                              = false
+      @bson_move_id                                 = false
+      @json_engine                                  = nil
+      @msgpack_engine                               = nil
+      @bson_engine                                  = nil
+      @plist_engine                                 = nil
+      @xml_options                                  = {}
+      @cache_sources                                = false
+      @cache_all_output                             = false
+      @escape_all_output                            = false
+      @view_paths                                   = []
+      @cache_engine                                 = Rabl::CacheEngine.new
+      @perform_caching                              = false
+      @replace_nil_values_with_empty_strings        = false
+      @replace_empty_string_values_with_nil_values  = false
+      @exclude_nil_values                           = false
+      @exclude_empty_values_in_collections   = false
     end
 
     # @return The JSON engine used to encode Rabl templates into JSON
     def json_engine
-      get_json_engine
+      @json_engine || (defined?(::Oj) ? ::Oj : ::JSON)
     end
 
     ##
@@ -89,22 +108,12 @@ module Rabl
     #
     # @param [Symbol] option Key for a given attribute
     def [](option)
-      send(option)
+      __send__(option)
     end
 
     # Returns merged default and inputted xml options
     def default_xml_options
       @_default_xml_options ||= @xml_options.reverse_merge(DEFAULT_XML_OPTIONS)
-    end
-
-    private
-
-    def get_json_engine
-      if !defined?(@engine_name) && defined?(Rails)
-        ActiveSupport::JSON
-      else
-        MultiJson.engine
-      end
     end
   end
 end

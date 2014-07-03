@@ -1,3 +1,5 @@
+$LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
+
 module Kernel
   def silence_warnings
     with_warnings(nil) { yield }
@@ -15,16 +17,20 @@ silence_warnings do
   require 'riot'
   require 'riot/rr'
   require 'tilt'
-  require File.expand_path('../../lib/rabl',__FILE__)
+  require 'rabl'
+  require File.expand_path('../models/user', __FILE__)
 end
 
 Riot.pretty_dots
 
 class Riot::Situation
-  # Custom situation code here
+  def char_split(str)
+    str.force_encoding("iso-8859-1").split("").sort
+  end
 end
 
 class Riot::Context
-  # Custom context code here
+  def char_split(str)
+    str.force_encoding("iso-8859-1").split("").sort
+  end
 end
-
